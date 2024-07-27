@@ -40,3 +40,9 @@ jobs:
           goarch: ${{ matrix.goarch }}
           project_path: "./app"
           binary_name: "lddc"
+
+      - name: Run Slack Notification
+        if: always()
+        uses: opslabhqx/action-slacknotify@v1
+        with:
+          webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
