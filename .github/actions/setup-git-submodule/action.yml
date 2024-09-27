@@ -10,3 +10,6 @@ runs:
       shell: bash
       run: |
         git submodule update --init --recursive
+        cd homebrew-lddc
+        git checkout main
+        cd ..
