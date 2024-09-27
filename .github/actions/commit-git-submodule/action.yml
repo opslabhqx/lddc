@@ -1,0 +1,32 @@
+---
+name: 'commit-git-submodule'
+description: 'Commit git submodule'
+inputs:
+  VERSION:
+    description: 'Version'
+    required: true
+    default: 'dev'
+  GH_TOKEN:
+    description: 'GitHub token'
+    required: true
+    default: 'dev'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: ⚙️ Configure Git
+      shell: bash
+      run: |
+        git config --global user.name "Anthony Yung"
+        git config --global user.email "yhs88a@gmail.com"
+
+    - name: ⚙️ Add and Commit Changes
+      shell: bash
+      run: |
+        cd homebrew-lddc
+        git remote set-url origin https://x-access-token:${{ inputs.GH_TOKEN }}@github.com/opslabhqx/homebrew-lddc.git
+        git add .
+        git commit -m "Update Homebrew formula for version ${{ inputs.VERSION }}"
+        git push origin main
+      env:
+        GITHUB_TOKEN: ${{ inputs.GH_TOKEN }}

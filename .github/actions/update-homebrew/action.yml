@@ -1,0 +1,45 @@
+---
+name: 'update-homebrew'
+description: 'Update homebrew'
+inputs:
+  VERSION:
+    description: 'version'
+    required: true
+    default: 'dev'
+  SHA256_AMD64:
+    description: 'sha256 amd64'
+    required: true
+    default: 'dev'
+  SHA256_ARM64:
+    description: 'sha256 arm64'
+    required: true
+    default: 'dev'
+
+runs:
+  using: 'composite'
+
+  steps:
+    - name: ⚙️ Update homebrew
+      shell: bash
+      run: |
+        cat <<EOF > homebrew-lddc/lddc.rb
+        class Lddc < Formula
+            desc "A simple script that collects and copies shared library dependencies of a specified binary to a given directory."
+            homepage "https://github.com/opslabhqx/lddc"
+            version "${{ inputs.VERSION }}"
+
+            if Hardware::CPU.intel?
+              url "https://github.com/opslabhqx/lddc/releases/download/${{ inputs.VERSION }}/lddc-${{ inputs.VERSION }}-linux-amd64.tar.gz"
+              sha256 "${{ inputs.SHA256_AMD64 }}"
+            elsif Hardware::CPU.arm?
+              url "https://github.com/opslabhqx/lddc/releases/download/${{ inputs.VERSION }}/lddc-${{ inputs.VERSION }}-linux-arm64.tar.gz"
+              sha256 "${{ inputs.SHA256_ARM64 }}"
+            end
+
+            license "MIT"
+
+            def install
+              bin.install "lddc"
+            end
+        end
+        EOF

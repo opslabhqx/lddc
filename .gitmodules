@@ -1,0 +1,4 @@
+[submodule "homebrew-lddc"]
+	path = homebrew-lddc
+	url = https://github.com/opslabhqx/homebrew-lddc.git
+	branch = main

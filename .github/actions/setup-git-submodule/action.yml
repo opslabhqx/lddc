@@ -1,0 +1,12 @@
+---
+name: 'setup-git-submodule'
+description: 'Setup git submodule'
+
+runs:
+  using: 'composite'
+
+  steps:
+    - name: ⚙️ Git submodule update`
+      shell: bash
+      run: |
+        git submodule update --init --recursive

@@ -1,0 +1,78 @@
+---
+name: go-release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+    contents: write
+    packages: write
+
+jobs:
+  go-release:
+    strategy:
+      matrix:
+        goos: [linux]
+        goarch: [amd64, arm64]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.0
+        with:
+          show-progress: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+
+      - name: Build and Release
+        uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GH_SECRET }}
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          project_path: "./app"
+          binary_name: "lddc"
+          extra_files: LICENSE
+
+      - name: Define variables
+        id: extract_version
+        run: |
+          echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+          GOARCH=$(echo "${{ matrix.goarch }}" | tr '[:lower:]' '[:upper:]')
+          SHA256=$(curl -sL "https://github.com/opslabhqx/lddc/releases/download/${{ github.event.release.tag_name }}/lddc-${{ github.event.release.tag_name }}-linux-${{ matrix.goarch }}.tar.gz" | shasum -a 256 | awk '{print $1}')
+          echo "SHA256_${GOARCH}=${SHA256}" >> $GITHUB_ENV
+          echo "VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+          echo "SHA256_${GOARCH}=${SHA256}" >> $GITHUB_OUTPUT
+
+    outputs:
+      VERSION: ${{ steps.extract_version.outputs.VERSION }}
+      SHA256_AMD64: ${{ steps.extract_version.outputs.SHA256_AMD64 }}
+      SHA256_ARM64: ${{ steps.extract_version.outputs.SHA256_ARM64 }}
+
+  update-homebrew:
+    permissions:
+      contents: write
+    needs: go-release
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.0
+        with:
+          show-progress: false
+
+      - name: Setup git submodule
+        uses: ./.github/actions/setup-git-submodule
+
+      - name: Update homebrew
+        uses: ./.github/actions/update-homebrew
+        with:
+          VERSION: ${{ needs.go-release.outputs.VERSION }}
+          SHA256_AMD64: ${{ needs.go-release.outputs.SHA256_AMD64 }}
+          SHA256_ARM64: ${{ needs.go-release.outputs.SHA256_ARM64 }}
+
+      - name: Commit git submodule
+        uses: ./.github/actions/commit-git-submodule
+        with:
+          VERSION: ${{ needs.go-release.outputs.VERSION }}
+          GH_TOKEN: ${{ secrets.GH_SECRET }}

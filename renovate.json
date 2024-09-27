@@ -1,0 +1,41 @@
+{
+  "commitMessagePrefix": "Update dependency:",
+  "commitMessageTopic": "Update dependency {{depName}}",
+  "extends": [
+    "config:base"
+  ],
+  "lockFileMaintenance": {
+    "enabled": true,
+    "automerge": true
+  },
+  "regexManagers": [
+    {
+      "fileMatch": [
+        "go.mod$"
+      ],
+      "matchStrings": [
+        "\\sgo (?<currentValue>.+?)\\s"
+      ],
+      "depNameTemplate": "golang",
+      "datasourceTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Automerge updates for all types",
+      "matchUpdateTypes": ["minor", "major", "patch", "pin", "digest"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge updates for devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    },
+    {
+      "description": "Automerge updates for Go modules",
+      "matchManagers": ["gomod"],
+      "automerge": true
+    }
+  ],
+  "platformAutomerge": true
+}

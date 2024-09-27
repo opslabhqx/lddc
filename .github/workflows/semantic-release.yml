@@ -1,0 +1,28 @@
+---
+name: semantic-release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  semantic-release:
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.0
+        with:
+          show-progress: false
+
+      - run: npx semantic-release@21.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_SECRET }}

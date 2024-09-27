@@ -1,0 +1,41 @@
+---
+name: build-pr
+
+on:
+  merge_group:
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+
+permissions:
+  contents: read
+
+jobs:
+  build-pr:
+    permissions:
+      contents: read
+      checks: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4.2.0
+        with:
+          show-progress: false
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        
+      - name: Build Go Binary
+        run: |
+          go mod tidy
+          CGO_ENABLED="0" go build -o lddc app/*.go
+  
+      - name: Make Binary Executable
+        run: chmod +x ./lddc
+
+      - name: Run Binary
+        run: ./lddc || true

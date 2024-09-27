@@ -1,0 +1,38 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/github",
+      {
+        "releasedLabels": false,
+        "successComment": false
+      }
+    ]
+  ],
+  "analyzeCommits": {
+    "releaseRules": [
+      {
+        "message": "Update dependency*",
+        "release": "minor"
+      },
+      {
+        "type": "fix",
+        "release": "patch"
+      },
+      {
+        "type": "feat",
+        "release": "minor"
+      },
+      {
+        "type": "perf",
+        "release": "patch"
+      },
+      {
+        "type": "breaking",
+        "release": "major"
+      }
+    ]
+  }
+}
